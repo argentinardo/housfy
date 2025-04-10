@@ -240,7 +240,7 @@
 <h1 class="text-3xl font-bold text-center text-white mb-8">Mars Rover Mission</h1>
 
 <div class="flex flex-col md:flex-row w-full items-start justify-center gap-4">
-  <div class="flex flex-col sticky-column md:max-w-xs lg:max-w-sm xl:max-w-md">
+  <div class="flex flex-col sticky-column md:max-w-xs lg:max-w-sm xl:max-w-md gap-4">
     <!-- Panel de información -->
     <div class="panel">
       <h2 class="panel-title">Información del Rover</h2>
@@ -301,7 +301,7 @@
           placeholder="Ej: FFRLF"
           class="flex-1 p-2 border rounded uppercase text-xl
           text-bold tracking-widest font-mono
-          placeholder:text-thin placeholder:font-normal placeholder:tracking-normal placeholder:font-sans placeholder:text-base"
+          placeholder:text-thin placeholder:font-normal placeholder:tracking-normal placeholder:font-sans placeholder:text-base focus:outline-red focus:outline-2"
           maxlength="50"
         />
         <button
@@ -412,7 +412,6 @@
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     color: #6c7e89;
-    margin-bottom: 16px;
   }
 
   .panel-title {

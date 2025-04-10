@@ -20,6 +20,10 @@ body * {
   user-select: none;
 }
 
+body *:focus {
+  outline: none;
+}
+
 
 #app {
   margin: 0 auto;
