@@ -6,14 +6,19 @@
     Grid,
     GridCell as GridCellType,
     Position,
-    PlanetSize,
   } from "./types";
   import { Rover } from "./Rover";
   import RoverGrid from "./RoverGrid.svelte";
-  import { showAlert, showSuccess, showError, showAdvice } from "../utils/alertUtils";
+  import {
+    showAlert,
+    showSuccess,
+    showError,
+    showAdvice,
+  } from "../utils/alertUtils";
 
-  // Configuración del planeta
-  const PLANET_SIZE: PlanetSize = { width: 20, height: 20 };
+  // Tamaño fijo del planeta (20x20)
+  const PLANET_WIDTH = 20;
+  const PLANET_HEIGHT = 20;
 
   // Configuración inicial del rover
   let x = 0;
@@ -32,26 +37,18 @@
   // Función para obtener una orientación aleatoria
   function getRandomDirection(): Direction {
     const directions: Direction[] = ["N", "E", "S", "O"];
-    const randomIndex = Math.floor(Math.random() * directions.length);
-    return directions[randomIndex];
+    return directions[Math.floor(Math.random() * 4)];
   }
 
-  // Función para obtener una posición aleatoria dentro del planeta
-  function getRandomPosition(): Position {
-    const randomX = Math.floor(Math.random() * PLANET_SIZE.width);
-    const randomY = Math.floor(Math.random() * PLANET_SIZE.height);
-    return { x: randomX, y: randomY };
-  }
-
-  // Inicializar el rover con posición y dirección aleatorias
+  // Función para inicializar el rover con posición y dirección aleatorias
   function initRover() {
-    const initialPosition = getRandomPosition();
-    x = initialPosition.x;
-    y = initialPosition.y;
+    // Generar posición aleatoria
+    x = Math.floor(Math.random() * PLANET_WIDTH);
+    y = Math.floor(Math.random() * PLANET_HEIGHT);
     direction = getRandomDirection();
 
     // Instanciar el rover
-    rover = new Rover(x, y, direction, PLANET_SIZE, obstacles);
+    rover = new Rover(x, y, direction, { width: PLANET_WIDTH, height: PLANET_HEIGHT }, obstacles);
 
     // Actualizar la cuadrícula
     updateGrid();
@@ -70,9 +67,10 @@
     const roverPos = rover.getPosition();
     grid = [];
 
-    for (let y = 0; y < PLANET_SIZE.height; y++) {
+    // Crear la grilla fija de 20x20
+    for (let y = 0; y < PLANET_HEIGHT; y++) {
       const row: GridCellType[] = [];
-      for (let x = 0; x < PLANET_SIZE.width; x++) {
+      for (let x = 0; x < PLANET_WIDTH; x++) {
         row.push({
           x: x,
           y: y,
@@ -121,11 +119,8 @@
 
   // Función para validar los comandos de entrada
   function validateCommands(input: string): string {
-    // Convertir a mayúsculas
-    const upperInput = input.toUpperCase();
-    
-    // Filtrar solo las letras F, L, R
-    return upperInput.split('').filter(char => ['F', 'L', 'R'].includes(char)).join('');
+    // Convertir a mayúsculas y filtrar solo las letras F, L, R
+    return input.toUpperCase().split('').filter(char => ['F', 'L', 'R'].includes(char)).join('');
   }
 
   // Manejador para el evento de cambio en el input
@@ -134,15 +129,15 @@
     commands = validateCommands(input);
   }
 
-  // Función para agregar un obstáculo
+  // Función para agregar un obstáculo aleatorio
   function addObstacle() {
-    // Generar una posición aleatoria que no sea donde está el rover
     const roverPos = rover.getPosition();
     let obsX, obsY;
 
+    // Generar posición que no coincida con el rover
     do {
-      obsX = Math.floor(Math.random() * PLANET_SIZE.width);
-      obsY = Math.floor(Math.random() * PLANET_SIZE.height);
+      obsX = Math.floor(Math.random() * PLANET_WIDTH);
+      obsY = Math.floor(Math.random() * PLANET_HEIGHT);
     } while (obsX === roverPos.x && obsY === roverPos.y);
 
     obstacles = [...obstacles, { x: obsX, y: obsY }];
@@ -152,7 +147,7 @@
       roverPos.x,
       roverPos.y,
       roverPos.direction,
-      PLANET_SIZE,
+      { width: PLANET_WIDTH, height: PLANET_HEIGHT },
       obstacles
     );
 
@@ -170,19 +165,18 @@
   function clearObstacles() {
     obstacles = [];
     const roverPos = rover.getPosition();
+    
+    // Recrear el rover sin obstáculos
     rover = new Rover(
       roverPos.x,
       roverPos.y,
       roverPos.direction,
-      PLANET_SIZE,
+      { width: PLANET_WIDTH, height: PLANET_HEIGHT },
       []
     );
-    updateGrid();
     
-    // Incrementar el trigger para forzar la actualización
+    updateGrid();
     updateTrigger++;
-
-    // Mostrar alerta
     showAdvice("Todos los obstáculos han sido eliminados");
   }
 
@@ -190,26 +184,12 @@
   function resetRover() {
     initRover();
     result = "";
-
-    // Mostrar alerta
     showAdvice("Rover reiniciado con nueva posición y dirección");
   }
-
-  // Ejemplo de cómo usar la función showAlert directamente
-  function testAlerts() {
-    showAlert('success', 'Ejemplo de alerta de éxito');
-    setTimeout(() => {
-      showAlert('error', 'Ejemplo de alerta de error', 7000);
-    }, 1000);
-    setTimeout(() => {
-      showAlert('advice', 'Ejemplo de alerta de consejo', 9000);
-    }, 2000);
-  }
 </script>
+
 <h1 class="text-3xl font-bold text-center text-white">Mars Rover Mission</h1>
 <div class="flex flex-row p-6 w-full items-start justify-center gap-x-4">
-
-
   <div class="flex flex-col max-w-2xl basis-0">
     <!-- Panel de información -->
     <div class="panel">
@@ -268,7 +248,9 @@
           value={commands}
           on:input={handleCommandInput}
           placeholder="Ej: FFRLF"
-          class="flex-1 p-2 border rounded uppercase"
+          class="flex-1 p-2 border rounded uppercase text-xl
+          text-bold tracking-widest font-mono
+          placeholder:text-thin placeholder:font-normal placeholder:tracking-normal placeholder:font-sans placeholder:text-base"
           maxlength="20"
         />
         <button
@@ -394,10 +376,7 @@
   <div class="flex flex-col space-y-4 w-full max-w-4xl">
     <!-- Cuadrícula del planeta -->
     {#if rover}
-      <RoverGrid
-        {grid}
-        roverDirection={rover.getPosition().direction}
-      />
+      <RoverGrid {grid} roverDirection={rover.getPosition().direction} />
     {/if}
   </div>
 </div>
