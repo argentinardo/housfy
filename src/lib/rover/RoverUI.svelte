@@ -115,18 +115,43 @@
 
     // Limpiar comandos después de ejecutarlos
     commands = "";
+    const roverPos = rover.getPosition();
+    rover = new Rover(
+      roverPos.x,
+      roverPos.y,
+      roverPos.direction,
+    );
   }
 
   // Función para validar los comandos de entrada
   function validateCommands(input: string): string {
-    // Convertir a mayúsculas y filtrar solo las letras F, L, R
-    return input.toUpperCase().split('').filter(char => ['F', 'L', 'R'].includes(char)).join('');
+    // Convertir a mayúsculas
+    const upperInput = input.toUpperCase();
+    
+    // Verificar si hay caracteres inválidos
+    const validChars = ['F', 'L', 'R'];
+    const invalidChars = upperInput.split('').filter(char => !validChars.includes(char));
+    
+    if (invalidChars.length > 0) {
+      // Mostrar alerta con los caracteres inválidos
+      const uniqueInvalidChars = [...new Set(invalidChars)].join(', ');
+      showError(`Comando inválido: "${uniqueInvalidChars}" no es un comando válido. Solo se permiten F, L, R.`);
+    }
+    
+    // Filtrar solo las letras F, L, R
+    return upperInput.split('').filter(char => validChars.includes(char)).join('');
   }
 
   // Manejador para el evento de cambio en el input
   function handleCommandInput(event: Event) {
     const input = (event.target as HTMLInputElement).value;
+    const oldCommands = commands;
     commands = validateCommands(input);
+    
+    // Si se eliminaron caracteres inválidos, reestablece el valor en el input
+    if (commands !== input.toUpperCase()) {
+      (event.target as HTMLInputElement).value = commands;
+    }
   }
 
   // Función para agregar un obstáculo aleatorio
