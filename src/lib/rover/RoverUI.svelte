@@ -26,6 +26,8 @@
   // Estado para la visualización
   let grid: Grid = [];
   let rover: Rover;
+  // Variable reactiva para forzar la actualización de la UI
+  let updateTrigger = 0;
 
   // Función para obtener una orientación aleatoria
   function getRandomDirection(): Direction {
@@ -53,6 +55,9 @@
 
     // Actualizar la cuadrícula
     updateGrid();
+    
+    // Incrementar el trigger para forzar la actualización
+    updateTrigger++;
 
     // Mostrar alerta de inicialización
     showAdvice(`Rover inicializado en posición (${x}, ${y}), dirección ${direction}`);
@@ -77,6 +82,12 @@
       }
       grid.push(row);
     }
+    
+    // Actualizar variables locales para mantener sincronización
+    const position = rover.getPosition();
+    x = position.x;
+    y = position.y;
+    direction = position.direction;
   }
 
   // Cuando se monta el componente, inicializar el rover
@@ -93,6 +104,9 @@
 
     // Actualizar la cuadrícula
     updateGrid();
+    
+    // Incrementar el trigger para forzar la actualización
+    updateTrigger++;
 
     // Mostrar alerta según el resultado
     if (moveResult.success) {
@@ -129,6 +143,9 @@
 
     // Actualizar la cuadrícula
     updateGrid();
+    
+    // Incrementar el trigger para forzar la actualización
+    updateTrigger++;
 
     // Mostrar alerta
     showAdvice(`Obstáculo añadido en posición (${obsX}, ${obsY})`);
@@ -146,6 +163,9 @@
       []
     );
     updateGrid();
+    
+    // Incrementar el trigger para forzar la actualización
+    updateTrigger++;
 
     // Mostrar alerta
     showAdvice("Todos los obstáculos han sido eliminados");
@@ -179,7 +199,7 @@
     <!-- Panel de información -->
     <div class="panel">
       <h2 class="panel-title">Información del Rover</h2>
-      {#if rover}
+      {#if rover && updateTrigger >= 0}
         <div class="flex items-center mb-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
