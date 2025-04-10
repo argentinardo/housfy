@@ -1,4 +1,4 @@
-export type Direction = 'N' | 'S' | 'E' | 'O';
+export type Direction = "N" | "S" | "E" | "O";
 
 export type Obstacle = {
   x: number;
@@ -36,8 +36,12 @@ export type Grid = GridCell[][];
 
 export interface RoverEvents {
   initialized: { position: Position; direction: Direction };
-  commandExecuted: { success: boolean; newPosition: RoverPosition; message: string };
+  commandExecuted: {
+    success: boolean;
+    newPosition: RoverPosition;
+    message: string;
+  };
   obstacleAdded: { obstacles: Obstacle[] };
   obstaclesCleared: void;
   roverReset: void;
-} 
+}

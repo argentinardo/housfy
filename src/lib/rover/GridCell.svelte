@@ -20,7 +20,7 @@
     : "";
 </script>
 
-<div class="cell">
+<div class="cell caret-transparent select-none focus:outline-none pointer-events-none">
   {#if hasObstacle}
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -69,13 +69,13 @@
   }
 
   .obstacle {
-    width: 100%;
+    width: 90%;
     height: auto;
     color: #dc3545;
   }
 
   .rover-icon {
-    width: 100%;
+    width: 90%;
     height: auto;
     color: #001c45;
   }

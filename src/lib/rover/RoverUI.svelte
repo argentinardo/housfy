@@ -5,12 +5,10 @@
     Obstacle,
     Grid,
     GridCell as GridCellType,
-    Position,
   } from "./types";
   import { Rover } from "./Rover";
   import RoverGrid from "./RoverGrid.svelte";
   import {
-    showAlert,
     showSuccess,
     showError,
     showAdvice,
@@ -120,6 +118,8 @@
       roverPos.x,
       roverPos.y,
       roverPos.direction,
+      { width: PLANET_WIDTH, height: PLANET_HEIGHT },
+      obstacles
     );
   }
 
@@ -154,17 +154,41 @@
     }
   }
 
+  // Manejador para el evento de presionar tecla en el input
+  function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Enter' && commands) {
+      executeCommands();
+    }
+  }
+
   // Función para agregar un obstáculo aleatorio
   function addObstacle() {
     const roverPos = rover.getPosition();
-    let obsX, obsY;
+    let obsX: number = 0;
+    let obsY: number = 0;
+    let isCellOccupied = true;
+    let attempts = 0;
+    const maxAttempts = 100; // Evitar bucles infinitos en casos extremos
 
-    // Generar posición que no coincida con el rover
-    do {
+    // Generar posición que no coincida con el rover y que no tenga ya un obstáculo
+    while (isCellOccupied && attempts < maxAttempts) {
       obsX = Math.floor(Math.random() * PLANET_WIDTH);
       obsY = Math.floor(Math.random() * PLANET_HEIGHT);
-    } while (obsX === roverPos.x && obsY === roverPos.y);
+      
+      // Verificar si la celda está ocupada por el rover o por un obstáculo existente
+      isCellOccupied = (obsX === roverPos.x && obsY === roverPos.y) || 
+                       obstacles.some(obs => obs.x === obsX && obs.y === obsY);
+      
+      attempts++;
+    }
 
+    // Si después de varios intentos no se encontró una celda libre, mostrar mensaje
+    if (attempts >= maxAttempts) {
+      showError("No se pudo añadir un obstáculo después de varios intentos. Puede que el planeta esté muy ocupado.");
+      return;
+    }
+
+    // Añadir el nuevo obstáculo
     obstacles = [...obstacles, { x: obsX, y: obsY }];
 
     // Recrear el rover con los nuevos obstáculos
@@ -214,8 +238,8 @@
 </script>
 
 <h1 class="text-3xl font-bold text-center text-white">Mars Rover Mission</h1>
-<div class="flex flex-row p-6 w-full items-start justify-center gap-x-4">
-  <div class="flex flex-col max-w-2xl basis-0">
+<div class="flex flex-col md:flex-row p-6 w-full items-start justify-center gap-4">
+  <div class="flex flex-col sticky-column md:max-w-xs lg:max-w-sm xl:max-w-md">
     <!-- Panel de información -->
     <div class="panel">
       <h2 class="panel-title">Información del Rover</h2>
@@ -267,20 +291,21 @@
       <p class="mb-2 text-sm">
         F: Avanzar, L: Girar izquierda, R: Girar derecha
       </p>
-      <div class="flex space-x-2">
+      <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
         <input
           type="text"
           value={commands}
           on:input={handleCommandInput}
+          on:keydown={handleKeyDown}
           placeholder="Ej: FFRLF"
           class="flex-1 p-2 border rounded uppercase text-xl
           text-bold tracking-widest font-mono
           placeholder:text-thin placeholder:font-normal placeholder:tracking-normal placeholder:font-sans placeholder:text-base"
-          maxlength="20"
+          maxlength="50"
         />
         <button
           on:click={executeCommands}
-          class="btn btn-green"
+          class="btn btn-green btn--empty"
           aria-label="Ejecutar comandos"
         >
           <svg
@@ -299,52 +324,13 @@
           </svg>
         </button>
       </div>
-
-      {#if result}
-        <div class="mt-4 p-2 bg-gray-100 dark:bg-gray-700 rounded">
-          <p class="flex items-center">
-            {#if result.includes("exito")}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="icon text-green-500"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            {:else}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="icon text-yellow-500"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-                />
-              </svg>
-            {/if}
-            {result}
-          </p>
-        </div>
-      {/if}
     </div>
 
     <!-- Panel de acciones -->
     <div class="panel">
       <h2 class="panel-title">Obstaculos</h2>
-      <div class="flex flex-col space-y-2">
-        <button on:click={addObstacle} class="btn btn-green">
+      <div class="flex flex-row space-x-2">
+        <button on:click={addObstacle} class="btn btn-green flex-1">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -359,10 +345,10 @@
               d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          Agregar
+          <span class="hidden md:inline">Agregar</span>
         </button>
 
-        <button on:click={clearObstacles} class="btn btn-red">
+        <button on:click={clearObstacles} class="btn btn-red flex-1">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -377,7 +363,7 @@
               d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
             />
           </svg>
-          Eliminar
+          <span class="hidden md:inline">Eliminar</span>
         </button>
       </div>
     </div>
@@ -398,7 +384,7 @@
       </ul>
     </div>
   </div>
-  <div class="flex flex-col space-y-4 w-full max-w-4xl">
+  <div class="flex flex-col w-full">
     <!-- Cuadrícula del planeta -->
     {#if rover}
       <RoverGrid {grid} roverDirection={rover.getPosition().direction} />
@@ -406,7 +392,7 @@
   </div>
 </div>
 
-<style>
+<style lang="scss">
   .panel {
     background-color: var(--panel-bg, white);
     padding: 16px;
@@ -425,7 +411,7 @@
     color: #000;
   }
 
-  /* Estilos para los iconos SVG */
+  // Estilos para los iconos SVG
   .icon {
     display: flex;
     align-items: center;
@@ -435,7 +421,7 @@
     margin-right: 8px;
   }
 
-  /* Estilos para las teclas de comando */
+  // Estilos para las teclas de comando
   .command-key {
     background-color: #f1f5f9;
     border: 1px solid #cbd5e1;
@@ -446,7 +432,7 @@
     font-weight: bold;
   }
 
-  /* Estilos de botones consistentes */
+  // Estilos de botones consistentes
   .btn {
     padding: 8px 16px;
     border-radius: 4px;
@@ -456,6 +442,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
+
+    &.btn--empty {
+      .icon {
+        margin-right: 0;
+      }
+    }
   }
 
   .btn-green {
@@ -466,5 +458,21 @@
   .btn-red {
     background-color: var(--red-color, #dc2626);
     color: white;
+  }
+
+  // Columna sticky
+  .sticky-column {
+    position: sticky;
+    top: 16px;
+    align-self: flex-start;
+    width: 100%;
+  }
+
+  // Media query para manejar la altura máxima en pantallas pequeñas
+  @media (max-width: 768px) {
+    .sticky-column {
+      position: static;
+      max-height: none;
+    }
   }
 </style>

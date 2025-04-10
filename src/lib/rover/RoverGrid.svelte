@@ -11,9 +11,11 @@
 </script>
 
 <div class="panel w-full">
-  <h2 class="panel-title">Map</h2>
+  <h2 class="panel-title">
+    Mapa
+  </h2>
   <div
-    class="grid-container"
+    class="grid-container rounded-md overflow-hidden"
     style="grid-template-columns: repeat({GRID_SIZE}, minmax(0, 1fr));"
   >
     {#each grid as row}
@@ -47,5 +49,10 @@
     margin-bottom: 12px;
     display: flex;
     align-items: center;
+  }
+
+  .icon {
+    width: 24px;
+    height: 24px;
   }
 </style>
