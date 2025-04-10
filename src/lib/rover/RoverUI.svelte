@@ -237,8 +237,9 @@
   }
 </script>
 
-<h1 class="text-3xl font-bold text-center text-white">Mars Rover Mission</h1>
-<div class="flex flex-col md:flex-row p-6 w-full items-start justify-center gap-4">
+<h1 class="text-3xl font-bold text-center text-white mb-8">Mars Rover Mission</h1>
+
+<div class="flex flex-col md:flex-row w-full items-start justify-center gap-4">
   <div class="flex flex-col sticky-column md:max-w-xs lg:max-w-sm xl:max-w-md">
     <!-- Panel de información -->
     <div class="panel">
@@ -367,22 +368,6 @@
         </button>
       </div>
     </div>
-    <div class="panel w-full">
-      <h2 class="panel-title">Instrucciones</h2>
-      <ul class="list-disc pl-5 space-y-1">
-        <li>El rover se mueve en un planeta cuadrado de 20x20.</li>
-        <li>Ingresa comandos para controlar el rover.</li>
-        <li>
-          <span class="command-key">F</span>: Mover hacia adelante en la
-          dirección actual.
-        </li>
-        <li><span class="command-key">L</span>: Girar 90° a la izquierda.</li>
-        <li><span class="command-key">R</span>: Girar 90° a la derecha.</li>
-        <li>
-          Si el rover encuentra un obstáculo, se detendrá antes de chocar.
-        </li>
-      </ul>
-    </div>
   </div>
   <div class="flex flex-col w-full">
     <!-- Cuadrícula del planeta -->
@@ -390,6 +375,34 @@
       <RoverGrid {grid} roverDirection={rover.getPosition().direction} />
     {/if}
   </div>
+</div>
+
+<!-- Panel de instrucciones (movido abajo) -->
+<div class="panel w-full mt-4">
+  <h2 class="panel-title">Instrucciones</h2>
+  <ul class="list-disc pl-5 space-y-1">
+    <li>Ingresa comandos para controlar el rover.</li>
+    <li>El rover se mueve en un planeta cuadrado de 20x20.</li>
+    <li>
+      <span class="command-key">F</span>: Mover hacia adelante en la
+      dirección actual.
+    </li>
+    <li><span class="command-key">L</span>: Girar 90° a la izquierda.</li>
+    <li><span class="command-key">R</span>: Girar 90° a la derecha.</li>
+    <li>Puede ejecutar la cadena de comando apretando el botón o con la tecla enter de su teclado</li>
+    <li>
+      Si el rover encuentra un obstáculo, se detendrá antes de chocar.
+    </li>
+    <li>
+      Si el rover llega al límite de la grilla, se detendrá y no traspasará la frontera.
+    </li>
+    <li>
+      Puede agregar obstáculos desde el panel de obstaculos, si presiona eliminar, borrara todos los obstaculos de la grilla.
+    </li>
+    <li>
+      Solo podrá ingresar los comandos "F", "R", "L" , las demás teclas no son admitidas.
+    </li>
+  </ul>
 </div>
 
 <style lang="scss">

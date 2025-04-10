@@ -32,15 +32,17 @@
 
 <style>
   .grid-container {
+    border: #11aefa 1px solid;
     display: grid;
     border-collapse: collapse;
+    gap: 1px;
+    background-color: #11aefa;
   }
 
   .panel {
     background-color: var(--panel-bg, white);
     padding: 16px;
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
   .panel-title {
@@ -51,8 +53,4 @@
     align-items: center;
   }
 
-  .icon {
-    width: 24px;
-    height: 24px;
-  }
 </style>

@@ -63,8 +63,7 @@
     align-items: center;
     justify-content: center;
     position: relative;
-    background-color: #ff845e;
-    box-shadow: rgba(0, 0, 125, 0.1) 0 0 3px 1px;
+    background-color: #ebf8ff;
     font-size: 1.5rem;
   }
 
@@ -77,7 +76,7 @@
   .rover-icon {
     width: 90%;
     height: auto;
-    color: #001c45;
+    color: #11aefa;
   }
 
   /* Clases para las cuatro direcciones */
