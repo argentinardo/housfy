@@ -119,6 +119,21 @@
     commands = "";
   }
 
+  // Función para validar los comandos de entrada
+  function validateCommands(input: string): string {
+    // Convertir a mayúsculas
+    const upperInput = input.toUpperCase();
+    
+    // Filtrar solo las letras F, L, R
+    return upperInput.split('').filter(char => ['F', 'L', 'R'].includes(char)).join('');
+  }
+
+  // Manejador para el evento de cambio en el input
+  function handleCommandInput(event: Event) {
+    const input = (event.target as HTMLInputElement).value;
+    commands = validateCommands(input);
+  }
+
   // Función para agregar un obstáculo
   function addObstacle() {
     // Generar una posición aleatoria que no sea donde está el rover
@@ -192,7 +207,7 @@
   }
 </script>
 <h1 class="text-3xl font-bold text-center text-white">Mars Rover Mission</h1>
-<div class="flex flex-row p-6 w-full items-start gap-x-4">
+<div class="flex flex-row p-6 w-full items-start justify-center gap-x-4">
 
 
   <div class="flex flex-col max-w-2xl basis-0">
@@ -250,13 +265,15 @@
       <div class="flex space-x-2">
         <input
           type="text"
-          bind:value={commands}
+          value={commands}
+          on:input={handleCommandInput}
           placeholder="Ej: FFRLF"
-          class="flex-1 p-2 border rounded"
+          class="flex-1 p-2 border rounded uppercase"
+          maxlength="20"
         />
         <button
           on:click={executeCommands}
-          class="btn btn-blue"
+          class="btn btn-green"
           aria-label="Ejecutar comandos"
         >
           <svg
@@ -320,7 +337,7 @@
     <div class="panel">
       <h2 class="panel-title">Obstaculos</h2>
       <div class="flex flex-col space-y-2">
-        <button on:click={addObstacle} class="btn btn-yellow">
+        <button on:click={addObstacle} class="btn btn-green">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -437,13 +454,8 @@
     justify-content: center;
   }
 
-  .btn-blue {
-    background-color: var(--green-color, #00855B);
-    color: white;
-  }
-
-  .btn-yellow {
-    background-color: var(--yellow-color, #d97706);
+  .btn-green {
+    background-color: var(--green-color, hsl(120, 100%, 35%));
     color: white;
   }
 
