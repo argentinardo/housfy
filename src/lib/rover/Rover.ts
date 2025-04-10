@@ -32,7 +32,7 @@ export class Rover {
   }
 
   // Girar a la izquierda
-  turnLeft(): void {
+  turnRight(): void {
     switch (this.direction) {
       case 'N': this.direction = 'O'; break;
       case 'O': this.direction = 'S'; break;
@@ -42,7 +42,7 @@ export class Rover {
   }
 
   // Girar a la derecha
-  turnRight(): void {
+  turnLeft(): void {
     switch (this.direction) {
       case 'N': this.direction = 'E'; break;
       case 'E': this.direction = 'S'; break;
@@ -119,7 +119,7 @@ export class Rover {
 
     return { 
       success: true,
-      message: 'Todos los comandos ejecutados exitosamente'
+      message: 'Comandos ejecutados'
     };
   }
 } 

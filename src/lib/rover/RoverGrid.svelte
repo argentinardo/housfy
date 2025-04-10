@@ -8,13 +8,13 @@
   export let roverPosition: Position;
   
   // Título de la cuadrícula
-  $: gridTitle = `Mapa Completo - Rover en (${roverPosition.x}, ${roverPosition.y})`;
+  $: gridTitle = `Mapa`;
 </script>
 
 <style>
   .grid-container {
     display: grid;
-    gap: 1px;
+    border-collapse: collapse;
   }
   
   .panel {
