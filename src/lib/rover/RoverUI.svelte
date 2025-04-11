@@ -9,56 +9,57 @@
   import { Rover } from "./Rover";
   import RoverGrid from "./RoverGrid.svelte";
   import {
-    showSuccess,
-    showError,
-    showAdvice,
-  } from "../utils/alertUtils";
+    showSuccessAlert as showSuccess,
+    showErrorAlert as showError,
+    showAdviceAlert as showAdvice,
+    showInfoAlert as showInfo,
+  } from "../utils/simpleAlertUtils";
 
-  // Tamaño fijo del planeta (20x20)
+  import RoverInfo from "../components/RoverInfo.svelte";
+  import CommandInput from "../components/CommandInput.svelte";
+  import ObstacleControls from "../components/ObstacleControls.svelte";
+  import InstructionsPanel from "../components/InstructionsPanel.svelte";
+
+
   const PLANET_WIDTH = 20;
   const PLANET_HEIGHT = 20;
+  // Límite máximo de obstáculos (todas las celdas menos la que ocupa el rover)
+  const MAX_OBSTACLES = (PLANET_WIDTH * PLANET_HEIGHT) - 1;
 
-  // Configuración inicial del rover
   let x = 0;
   let y = 0;
+
   let direction: Direction = "N";
   let commands = "";
   let result = "";
   let obstacles: Obstacle[] = [];
 
-  // Estado para la visualización
   let grid: Grid = [];
   let rover: Rover;
-  // Variable reactiva para forzar la actualización de la UI
   let updateTrigger = 0;
 
-  // Función para obtener una orientación aleatoria
+  // Función para mostrar alerta cuando se intenta una acción deshabilitada
+  function showDisabledActionAlert(action: string) {
+    showInfo(`Acción no disponible: ${action}`);
+  }
+
   function getRandomDirection(): Direction {
     const directions: Direction[] = ["N", "E", "S", "O"];
     return directions[Math.floor(Math.random() * 4)];
   }
 
-  // Función para inicializar el rover con posición y dirección aleatorias
   function initRover() {
-    // Generar posición aleatoria
     x = Math.floor(Math.random() * PLANET_WIDTH);
     y = Math.floor(Math.random() * PLANET_HEIGHT);
     direction = getRandomDirection();
 
-    // Instanciar el rover
     rover = new Rover(x, y, direction, { width: PLANET_WIDTH, height: PLANET_HEIGHT }, obstacles);
 
-    // Actualizar la cuadrícula
     updateGrid();
-    
-    // Incrementar el trigger para forzar la actualización
     updateTrigger++;
-
-    // Mostrar alerta de inicialización
     showAdvice(`Rover inicializado en posición (${x}, ${y}), dirección ${direction}`);
   }
 
-  // Función para actualizar la cuadrícula
   function updateGrid() {
     if (!rover) return;
 
@@ -79,21 +80,21 @@
       grid.push(row);
     }
     
-    // Actualizar variables locales para mantener sincronización
     const position = rover.getPosition();
     x = position.x;
     y = position.y;
     direction = position.direction;
   }
 
-  // Cuando se monta el componente, inicializar el rover
   onMount(() => {
     initRover();
   });
 
-  // Función para ejecutar comandos
   function executeCommands() {
-    if (!commands) return;
+    if (!commands) {
+      showDisabledActionAlert("No hay comandos para ejecutar");
+      return;
+    }
 
     const moveResult = rover.executeCommands(commands);
     result = moveResult.message || "";
@@ -101,17 +102,14 @@
     // Actualizar la cuadrícula
     updateGrid();
     
-    // Incrementar el trigger para forzar la actualización
     updateTrigger++;
 
-    // Mostrar alerta según el resultado
     if (moveResult.success) {
       showSuccess(result);
     } else {
       showError(result);
     }
 
-    // Limpiar comandos después de ejecutarlos
     commands = "";
     const roverPos = rover.getPosition();
     rover = new Rover(
@@ -123,52 +121,19 @@
     );
   }
 
-  // Función para validar los comandos de entrada
-  function validateCommands(input: string): string {
-    // Convertir a mayúsculas
-    const upperInput = input.toUpperCase();
-    
-    // Verificar si hay caracteres inválidos
-    const validChars = ['F', 'L', 'R'];
-    const invalidChars = upperInput.split('').filter(char => !validChars.includes(char));
-    
-    if (invalidChars.length > 0) {
-      // Mostrar alerta con los caracteres inválidos
-      const uniqueInvalidChars = [...new Set(invalidChars)].join(', ');
-      showError(`Comando inválido: "${uniqueInvalidChars}" no es un comando válido. Solo se permiten F, L, R.`);
-    }
-    
-    // Filtrar solo las letras F, L, R
-    return upperInput.split('').filter(char => validChars.includes(char)).join('');
-  }
-
-  // Manejador para el evento de cambio en el input
-  function handleCommandInput(event: Event) {
-    const input = (event.target as HTMLInputElement).value;
-    const oldCommands = commands;
-    commands = validateCommands(input);
-    
-    // Si se eliminaron caracteres inválidos, reestablece el valor en el input
-    if (commands !== input.toUpperCase()) {
-      (event.target as HTMLInputElement).value = commands;
-    }
-  }
-
-  // Manejador para el evento de presionar tecla en el input
-  function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === 'Enter' && commands) {
-      executeCommands();
-    }
-  }
-
-  // Función para agregar un obstáculo aleatorio
   function addObstacle() {
+    // Verificar si alcanzamos el límite máximo de obstáculos
+    if (obstacles.length >= MAX_OBSTACLES) {
+      showDisabledActionAlert("El planeta está lleno. Ya no caben más obstáculos");
+      return;
+    }
+    
     const roverPos = rover.getPosition();
     let obsX: number = 0;
     let obsY: number = 0;
     let isCellOccupied = true;
     let attempts = 0;
-    const maxAttempts = 100; // Evitar bucles infinitos en casos extremos
+    const maxAttempts = 100; // Evitar bucles infinitos
 
     // Generar posición que no coincida con el rover y que no tenga ya un obstáculo
     while (isCellOccupied && attempts < maxAttempts) {
@@ -188,10 +153,8 @@
       return;
     }
 
-    // Añadir el nuevo obstáculo
     obstacles = [...obstacles, { x: obsX, y: obsY }];
 
-    // Recrear el rover con los nuevos obstáculos
     rover = new Rover(
       roverPos.x,
       roverPos.y,
@@ -200,18 +163,17 @@
       obstacles
     );
 
-    // Actualizar la cuadrícula
     updateGrid();
-    
-    // Incrementar el trigger para forzar la actualización
     updateTrigger++;
-
-    // Mostrar alerta
-    showAdvice(`Obstáculo añadido en posición (${obsX}, ${obsY})`);
+    showAdvice(`Obstáculo añadido en posición (${obsX}, ${obsY}). Total: ${obstacles.length}/${MAX_OBSTACLES}`);
   }
 
-  // Función para limpiar obstáculos
   function clearObstacles() {
+    if (obstacles.length === 0) {
+      showDisabledActionAlert("No hay obstáculos para eliminar");
+      return;
+    }
+    
     obstacles = [];
     const roverPos = rover.getPosition();
     
@@ -229,11 +191,29 @@
     showAdvice("Todos los obstáculos han sido eliminados");
   }
 
-  // Función para reiniciar el rover
-  function resetRover() {
-    initRover();
-    result = "";
-    showAdvice("Rover reiniciado con nueva posición y dirección");
+  // Funciones para manejar clics en botones deshabilitados
+  function handleAddObstacleClick() {
+    if (obstacles.length >= MAX_OBSTACLES) {
+      showDisabledActionAlert("El planeta está lleno. Ya no caben más obstáculos");
+    } else {
+      addObstacle();
+    }
+  }
+
+  function handleClearObstaclesClick() {
+    if (obstacles.length === 0) {
+      showDisabledActionAlert("No hay obstáculos para eliminar");
+    } else {
+      clearObstacles();
+    }
+  }
+
+  function handleExecuteCommandsClick() {
+    if (!commands) {
+      showDisabledActionAlert("No hay comandos para ejecutar");
+    } else {
+      executeCommands();
+    }
   }
 </script>
 
@@ -241,248 +221,39 @@
 
 <div class="flex flex-col md:flex-row w-full items-start justify-center gap-4">
   <div class="flex flex-col sticky-column md:max-w-xs lg:max-w-sm xl:max-w-md gap-4">
-    <!-- Panel de información -->
-    <div class="panel">
-      <h2 class="panel-title">Información del Rover</h2>
-      {#if rover && updateTrigger >= 0}
-        <div class="flex items-center mb-2">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="icon"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
-            />
-          </svg>
-          <p>Posición: ({rover.getPosition().x}, {rover.getPosition().y})</p>
-        </div>
-        <div class="flex items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="icon"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"
-            />
-          </svg>
-          <p>Dirección: {rover.getPosition().direction}</p>
-        </div>
-      {/if}
-    </div>
-    <!-- Panel de comandos -->
-    <div class="panel">
-      <h2 class="panel-title">Comandos</h2>
-      <p class="mb-2 text-sm">
-        F: Avanzar, L: Girar izquierda, R: Girar derecha
-      </p>
-      <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-        <input
-          type="text"
-          value={commands}
-          on:input={handleCommandInput}
-          on:keydown={handleKeyDown}
-          placeholder="Ej: FFRLF"
-          class="flex-1 p-2 border rounded uppercase text-xl
-          text-bold tracking-widest font-mono
-          placeholder:text-thin placeholder:font-normal placeholder:tracking-normal placeholder:font-sans placeholder:text-base focus:outline-red focus:outline-2"
-          maxlength="50"
-        />
-        <button
-          on:click={executeCommands}
-          class="btn btn-green btn--empty"
-          aria-label="Ejecutar comandos"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="icon mr-1"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"
-            />
-          </svg>
-        </button>
-      </div>
-    </div>
+    <RoverInfo {rover} {updateTrigger} />
+    
+    <CommandInput 
+      bind:commands 
+      onExecuteCommands={handleExecuteCommandsClick} 
+    />
 
-    <!-- Panel de acciones -->
-    <div class="panel">
-      <h2 class="panel-title">Obstaculos</h2>
-      <div class="flex flex-row space-x-2">
-        <button on:click={addObstacle} class="btn btn-green flex-1">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="icon mr-1"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span class="hidden md:inline">Agregar</span>
-        </button>
-
-        <button on:click={clearObstacles} class="btn btn-red flex-1">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="icon mr-1"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
-            />
-          </svg>
-          <span class="hidden md:inline">Eliminar</span>
-        </button>
-      </div>
-    </div>
+    <ObstacleControls 
+      onAddObstacle={handleAddObstacleClick} 
+      onClearObstacles={handleClearObstaclesClick}
+      obstaclesCount={obstacles.length}
+      maxObstacles={MAX_OBSTACLES}
+    />
   </div>
   <div class="flex flex-col w-full">
-    <!-- Cuadrícula del planeta -->
     {#if rover}
       <RoverGrid {grid} roverDirection={rover.getPosition().direction} />
     {/if}
   </div>
 </div>
 
-<!-- Panel de instrucciones (movido abajo) -->
-<div class="panel w-full mt-4">
-  <h2 class="panel-title">Instrucciones</h2>
-  <ul class="list-disc pl-5 space-y-1">
-    <li>Ingresa comandos para controlar el rover.</li>
-    <li>El rover se mueve en un planeta cuadrado de 20x20.</li>
-    <li>
-      <span class="command-key">F</span>: Mover hacia adelante en la
-      dirección actual.
-    </li>
-    <li><span class="command-key">L</span>: Girar 90° a la izquierda.</li>
-    <li><span class="command-key">R</span>: Girar 90° a la derecha.</li>
-    <li>Puede ejecutar la cadena de comando apretando el botón o con la tecla enter de su teclado</li>
-    <li>
-      Si el rover encuentra un obstáculo, se detendrá antes de chocar.
-    </li>
-    <li>
-      Si el rover llega al límite de la grilla, se detendrá y no traspasará la frontera.
-    </li>
-    <li>
-      Puede agregar obstáculos desde el panel de obstaculos, si presiona eliminar, borrara todos los obstaculos de la grilla.
-    </li>
-    <li>
-      Solo podrá ingresar los comandos "F", "R", "L" , las demás teclas no son admitidas.
-    </li>
-  </ul>
-</div>
+<InstructionsPanel />
 
-<style lang="scss">
-  .panel {
-    background-color: var(--panel-bg, white);
-    padding: 16px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    color: #6c7e89;
-  }
-
-  .panel-title {
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    color: #000;
-  }
-
-  // Estilos para los iconos SVG
-  .icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    margin-right: 8px;
-  }
-
-  // Estilos para las teclas de comando
-  .command-key {
-    background-color: #f1f5f9;
-    border: 1px solid #cbd5e1;
-    border-radius: 4px;
-    padding: 2px 6px;
-    margin: 0 2px;
-    font-family: monospace;
-    font-weight: bold;
-  }
-
-  // Estilos de botones consistentes
-  .btn {
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &.btn--empty {
-      .icon {
-        margin-right: 0;
-      }
-    }
-  }
-
-  .btn-green {
-    background-color: var(--green-color, hsl(120, 100%, 35%));
-    color: white;
-  }
-
-  .btn-red {
-    background-color: var(--red-color, #dc2626);
-    color: white;
-  }
-
-  // Columna sticky
-  .sticky-column {
+<style>
+  :global(.sticky-column) {
     position: sticky;
     top: 16px;
     align-self: flex-start;
     width: 100%;
   }
 
-  // Media query para manejar la altura máxima en pantallas pequeñas
   @media (max-width: 768px) {
-    .sticky-column {
+    :global(.sticky-column) {
       position: static;
       max-height: none;
     }

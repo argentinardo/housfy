@@ -2,11 +2,9 @@
   import type { Direction, Grid } from "./types";
   import GridCell from "./GridCell.svelte";
 
-  // Propiedades del componente
   export let grid: Grid = [];
   export let roverDirection: Direction;
 
-  // Tamaño fijo de la grilla
   const GRID_SIZE = 20;
 </script>
 
