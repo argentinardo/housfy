@@ -1,35 +1,42 @@
 <script lang="ts">
   import { showErrorAlert as showError } from "../utils/simpleAlertUtils";
   export let commands: string = "";
-  
+
   export let onExecuteCommands: () => void;
-  
+
   function validateCommands(input: string): string {
     const upperInput = input.toUpperCase();
-    
-    const validChars = ['F', 'L', 'R'];
-    const invalidChars = upperInput.split('').filter(char => !validChars.includes(char));
-    
+
+    const validChars = ["F", "L", "R"];
+    const invalidChars = upperInput
+      .split("")
+      .filter((char) => !validChars.includes(char));
+
     if (invalidChars.length > 0) {
-      const uniqueInvalidChars = [...new Set(invalidChars)].join(', ');
-      showError(`Comando inválido: "${uniqueInvalidChars}" no es un comando válido. Solo se permiten F, L, R.`);
+      const uniqueInvalidChars = [...new Set(invalidChars)].join(", ");
+      showError(
+        `Comando inválido: "${uniqueInvalidChars}" no es un comando válido. Solo se permiten F, L, R.`
+      );
     }
-    
-    return upperInput.split('').filter(char => validChars.includes(char)).join('');
+
+    return upperInput
+      .split("")
+      .filter((char) => validChars.includes(char))
+      .join("");
   }
 
   function handleCommandInput(event: Event) {
     const input = (event.target as HTMLInputElement).value;
     const oldCommands = commands;
     commands = validateCommands(input);
-    
+
     if (commands !== input.toUpperCase()) {
       (event.target as HTMLInputElement).value = commands;
     }
   }
 
   function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       onExecuteCommands();
     }
   }
@@ -37,9 +44,7 @@
 
 <div class="panel">
   <h2 class="panel-title">Comandos</h2>
-  <p class="mb-2 text-sm">
-    F: Avanzar, L: Girar izquierda, R: Girar derecha
-  </p>
+  <p class="mb-2 text-sm">F: Avanzar, L: Girar izquierda, R: Girar derecha</p>
   <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
     <input
       type="text"
@@ -52,7 +57,9 @@
     />
     <button
       on:click={onExecuteCommands}
-      class="btn {commands ? 'btn-green hover:bg-green-600' : 'bg-gray-300 text-gray-400'}"
+      class="btn {commands
+        ? 'btn-green hover:bg-green-600'
+        : 'bg-gray-300 text-gray-400'}"
       aria-label="Ejecutar comandos"
     >
       <svg
@@ -116,7 +123,7 @@
     background-color: var(--green-color, hsl(120, 100%, 35%));
     color: white;
   }
-  
+
   .input-command {
     flex: 1;
     padding: 0.5rem;
@@ -128,46 +135,46 @@
     font-family: monospace;
     text-transform: uppercase;
   }
-  
+
   .input-command::placeholder {
     font-weight: normal;
     font-family: sans-serif;
     font-size: 1rem;
     letter-spacing: normal;
   }
-  
+
   /* Clases de Tailwind replicadas */
   .flex {
     display: flex;
   }
-  
+
   .flex-col {
     flex-direction: column;
   }
-  
+
   .mb-2 {
     margin-bottom: 0.5rem;
   }
-  
+
   .text-sm {
     font-size: 0.875rem;
   }
-  
+
   .space-y-2 > * + * {
     margin-top: 0.5rem;
   }
-  
+
   @media (min-width: 768px) {
     .md\:flex-row {
       flex-direction: row;
     }
-    
+
     .md\:space-y-0 > * + * {
       margin-top: 0;
     }
-    
+
     .md\:space-x-2 > * + * {
       margin-left: 0.5rem;
     }
   }
-</style> 
+</style>

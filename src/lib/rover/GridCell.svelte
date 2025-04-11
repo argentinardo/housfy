@@ -1,26 +1,25 @@
 <script lang="ts">
   import type { Direction } from "./types";
 
-  // Props del componente
   export let hasRover: boolean = false;
   export let hasObstacle: boolean = false;
   export let roverDirection: Direction = "N";
 
-  // Mapeo de direcciones a clases CSS (calculado una vez, no reactivamente)
   const directionClasses = {
     N: "direction-n",
     E: "direction-e",
     S: "direction-s",
-    O: "direction-w", // 'O' (oeste) en español equivale a 'W' (west) en inglés
+    O: "direction-w",
   };
 
-  // Clase CSS para el icono del rover (calculada reactivamente)
   $: roverIconClass = hasRover
     ? `rover-icon ${directionClasses[roverDirection] || "direction-n"}`
     : "";
 </script>
 
-<div class="cell caret-transparent select-none focus:outline-none pointer-events-none">
+<div
+  class="cell caret-transparent select-none focus:outline-none pointer-events-none"
+>
   {#if hasObstacle}
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -79,9 +78,16 @@
     color: #11aefa;
   }
 
-  /* Clases para las cuatro direcciones */
-  .direction-n { transform: rotate(0deg); }
-  .direction-e { transform: rotate(90deg); }
-  .direction-s { transform: rotate(180deg); }
-  .direction-w { transform: rotate(270deg); }
+  .direction-n {
+    transform: rotate(0deg);
+  }
+  .direction-e {
+    transform: rotate(90deg);
+  }
+  .direction-s {
+    transform: rotate(180deg);
+  }
+  .direction-w {
+    transform: rotate(270deg);
+  }
 </style>

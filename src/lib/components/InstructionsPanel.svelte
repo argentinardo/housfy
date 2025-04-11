@@ -4,23 +4,27 @@
     <li>Ingresa comandos para controlar el rover.</li>
     <li>El rover se mueve en un planeta cuadrado de 20x20.</li>
     <li>
-      <span class="command-key">F</span>: Mover hacia adelante en la
-      dirección actual.
+      <span class="command-key">F</span>: Mover hacia adelante en la dirección
+      actual.
     </li>
     <li><span class="command-key">L</span>: Girar 90° a la izquierda.</li>
     <li><span class="command-key">R</span>: Girar 90° a la derecha.</li>
-    <li>Puede ejecutar la cadena de comando apretando el botón o con la tecla enter de su teclado</li>
     <li>
-      Si el rover encuentra un obstáculo, se detendrá antes de chocar.
+      Puede ejecutar la cadena de comando apretando el botón o con la tecla
+      enter de su teclado
+    </li>
+    <li>Si el rover encuentra un obstáculo, se detendrá antes de chocar.</li>
+    <li>
+      Si el rover llega al límite de la grilla, se detendrá y no traspasará la
+      frontera.
     </li>
     <li>
-      Si el rover llega al límite de la grilla, se detendrá y no traspasará la frontera.
+      Puede agregar obstáculos desde el panel de obstaculos, si presiona
+      eliminar, borrara todos los obstaculos de la grilla.
     </li>
     <li>
-      Puede agregar obstáculos desde el panel de obstaculos, si presiona eliminar, borrara todos los obstaculos de la grilla.
-    </li>
-    <li>
-      Solo podrá ingresar los comandos "F", "R", "L" , las demás teclas no son admitidas.
+      Solo podrá ingresar los comandos "F", "R", "L" , las demás teclas no son
+      admitidas.
     </li>
   </ul>
 </div>
@@ -54,13 +58,13 @@
     font-family: monospace;
     font-weight: bold;
   }
-  
+
   .instructions-list {
     list-style-type: disc;
     padding-left: 1.25rem;
   }
-  
+
   .instructions-list li {
     margin-bottom: 0.25rem;
   }
-</style> 
+</style>

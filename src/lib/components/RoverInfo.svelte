@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { Rover } from "../rover/Rover";
-  
+
   export let rover: Rover;
-  
+
   export let updateTrigger: number = 0;
 </script>
 
@@ -78,14 +78,13 @@
     height: 24px;
     margin-right: 8px;
   }
-  
+
   /* Clases de TailwindCSS replicadas para la independencia del componente */
   .flex {
     display: flex;
   }
-  
+
   .items-center {
     align-items: center;
   }
-  
-</style> 
+</style>

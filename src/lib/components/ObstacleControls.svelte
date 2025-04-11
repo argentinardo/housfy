@@ -2,13 +2,13 @@
   // Propiedades del componente
   export let onAddObstacle: () => void;
   export let onClearObstacles: () => void;
-  
+
   // Número de obstáculos actuales
   export let obstaclesCount: number = 0;
-  
+
   // Límite máximo de obstáculos (por defecto 50% del área del planeta)
   export let maxObstacles: number = 200; // Por defecto para un planeta 20x20
-  
+
   // Propiedades calculadas
   $: canAddObstacle = obstaclesCount < maxObstacles;
   $: canClearObstacles = obstaclesCount > 0;
@@ -17,10 +17,14 @@
 <div class="panel">
   <h2 class="panel-title">Obstaculos</h2>
   <div class="flex flex-row space-x-2">
-    <button 
-      on:click={onAddObstacle} 
-      class="btn flex-1 {canAddObstacle ? 'btn-green hover:bg-green-600' : 'bg-gray-300 text-gray-400'}"
-      title={!canAddObstacle ? "No se pueden agregar más obstáculos" : "Agregar obstáculo"}
+    <button
+      on:click={onAddObstacle}
+      class="btn flex-1 {canAddObstacle
+        ? 'btn-green hover:bg-green-600'
+        : 'bg-gray-300 text-gray-400'}"
+      title={!canAddObstacle
+        ? "No se pueden agregar más obstáculos"
+        : "Agregar obstáculo"}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -39,10 +43,14 @@
       <span class="btn-text">Agregar</span>
     </button>
 
-    <button 
-      on:click={onClearObstacles} 
-      class="btn flex-1 {canClearObstacles ? 'btn-red hover:bg-red-600' : 'bg-gray-300 text-gray-400'}"
-      title={!canClearObstacles ? "No hay obstáculos para eliminar" : "Eliminar todos los obstáculos"}
+    <button
+      on:click={onClearObstacles}
+      class="btn flex-1 {canClearObstacles
+        ? 'btn-red hover:bg-red-600'
+        : 'bg-gray-300 text-gray-400'}"
+      title={!canClearObstacles
+        ? "No hay obstáculos para eliminar"
+        : "Eliminar todos los obstáculos"}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -111,35 +119,10 @@
     background-color: var(--red-color, #dc2626);
     color: white;
   }
-  
-  /* Clases de Tailwind replicadas */
-  .flex {
-    display: flex;
-  }
-  
-  .flex-row {
-    flex-direction: row;
-  }
-  
-  .flex-1 {
-    flex: 1 1 0%;
-  }
-  
-  .space-x-2 > * + * {
-    margin-left: 0.5rem;
-  }
-  
-  .mb-2 {
-    margin-bottom: 0.5rem;
-  }
-  
-  .text-sm {
-    font-size: 0.875rem;
-  }
-  
+
   @media (max-width: 767px) {
     .btn-text {
       display: none;
     }
   }
-</style> 
+</style>

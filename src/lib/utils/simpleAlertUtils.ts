@@ -1,8 +1,8 @@
 export enum AlertType {
-  SUCCESS = 'success',
-  ERROR = 'error',
-  INFO = 'info',
-  ADVICE = 'advice'
+  SUCCESS = "success",
+  ERROR = "error",
+  INFO = "info",
+  ADVICE = "advice",
 }
 
 export interface ShowAlertEventDetail {
@@ -11,21 +11,24 @@ export interface ShowAlertEventDetail {
   duration?: number;
 }
 
-export const SHOW_ALERT_EVENT = 'show-alert';
+export const SHOW_ALERT_EVENT = "show-alert";
 
-export function showAlert(message: string, type: AlertType, duration?: number): void {
+export function showAlert(
+  message: string,
+  type: AlertType,
+  duration?: number
+): void {
   const event = new CustomEvent<ShowAlertEventDetail>(SHOW_ALERT_EVENT, {
     detail: {
       message,
       type,
-      duration
+      duration,
     },
-    bubbles: true
+    bubbles: true,
   });
-  
+
   document.dispatchEvent(event);
 }
-
 
 export function showSuccessAlert(message: string, duration?: number): void {
   showAlert(message, AlertType.SUCCESS, duration);
@@ -41,4 +44,4 @@ export function showInfoAlert(message: string, duration?: number): void {
 
 export function showAdviceAlert(message: string, duration?: number): void {
   showAlert(message, AlertType.ADVICE, duration);
-} 
+}

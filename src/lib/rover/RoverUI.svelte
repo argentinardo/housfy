@@ -20,11 +20,10 @@
   import ObstacleControls from "../components/ObstacleControls.svelte";
   import InstructionsPanel from "../components/InstructionsPanel.svelte";
 
-
   const PLANET_WIDTH = 20;
   const PLANET_HEIGHT = 20;
   // Límite máximo de obstáculos (todas las celdas menos la que ocupa el rover)
-  const MAX_OBSTACLES = (PLANET_WIDTH * PLANET_HEIGHT) - 1;
+  const MAX_OBSTACLES = PLANET_WIDTH * PLANET_HEIGHT - 1;
 
   let x = 0;
   let y = 0;
@@ -53,11 +52,19 @@
     y = Math.floor(Math.random() * PLANET_HEIGHT);
     direction = getRandomDirection();
 
-    rover = new Rover(x, y, direction, { width: PLANET_WIDTH, height: PLANET_HEIGHT }, obstacles);
+    rover = new Rover(
+      x,
+      y,
+      direction,
+      { width: PLANET_WIDTH, height: PLANET_HEIGHT },
+      obstacles
+    );
 
     updateGrid();
     updateTrigger++;
-    showAdvice(`Rover inicializado en posición (${x}, ${y}), dirección ${direction}`);
+    showAdvice(
+      `Rover inicializado en posición (${x}, ${y}), dirección ${direction}`
+    );
   }
 
   function updateGrid() {
@@ -66,7 +73,6 @@
     const roverPos = rover.getPosition();
     grid = [];
 
-    // Crear la grilla fija de 20x20
     for (let y = 0; y < PLANET_HEIGHT; y++) {
       const row: GridCellType[] = [];
       for (let x = 0; x < PLANET_WIDTH; x++) {
@@ -79,7 +85,7 @@
       }
       grid.push(row);
     }
-    
+
     const position = rover.getPosition();
     x = position.x;
     y = position.y;
@@ -99,9 +105,8 @@
     const moveResult = rover.executeCommands(commands);
     result = moveResult.message || "";
 
-    // Actualizar la cuadrícula
     updateGrid();
-    
+
     updateTrigger++;
 
     if (moveResult.success) {
@@ -122,12 +127,13 @@
   }
 
   function addObstacle() {
-    // Verificar si alcanzamos el límite máximo de obstáculos
     if (obstacles.length >= MAX_OBSTACLES) {
-      showDisabledActionAlert("El planeta está lleno. Ya no caben más obstáculos");
+      showDisabledActionAlert(
+        "El planeta está lleno. Ya no caben más obstáculos"
+      );
       return;
     }
-    
+
     const roverPos = rover.getPosition();
     let obsX: number = 0;
     let obsY: number = 0;
@@ -135,21 +141,21 @@
     let attempts = 0;
     const maxAttempts = 100; // Evitar bucles infinitos
 
-    // Generar posición que no coincida con el rover y que no tenga ya un obstáculo
     while (isCellOccupied && attempts < maxAttempts) {
       obsX = Math.floor(Math.random() * PLANET_WIDTH);
       obsY = Math.floor(Math.random() * PLANET_HEIGHT);
-      
-      // Verificar si la celda está ocupada por el rover o por un obstáculo existente
-      isCellOccupied = (obsX === roverPos.x && obsY === roverPos.y) || 
-                       obstacles.some(obs => obs.x === obsX && obs.y === obsY);
-      
+
+      isCellOccupied =
+        (obsX === roverPos.x && obsY === roverPos.y) ||
+        obstacles.some((obs) => obs.x === obsX && obs.y === obsY);
+
       attempts++;
     }
 
-    // Si después de varios intentos no se encontró una celda libre, mostrar mensaje
     if (attempts >= maxAttempts) {
-      showError("No se pudo añadir un obstáculo después de varios intentos. Puede que el planeta esté muy ocupado.");
+      showError(
+        "No se pudo añadir un obstáculo después de varios intentos. Puede que el planeta esté muy ocupado."
+      );
       return;
     }
 
@@ -165,7 +171,9 @@
 
     updateGrid();
     updateTrigger++;
-    showAdvice(`Obstáculo añadido en posición (${obsX}, ${obsY}). Total: ${obstacles.length}/${MAX_OBSTACLES}`);
+    showAdvice(
+      `Obstáculo añadido en posición (${obsX}, ${obsY}).`
+    );
   }
 
   function clearObstacles() {
@@ -173,11 +181,10 @@
       showDisabledActionAlert("No hay obstáculos para eliminar");
       return;
     }
-    
+
     obstacles = [];
     const roverPos = rover.getPosition();
-    
-    // Recrear el rover sin obstáculos
+
     rover = new Rover(
       roverPos.x,
       roverPos.y,
@@ -185,7 +192,7 @@
       { width: PLANET_WIDTH, height: PLANET_HEIGHT },
       []
     );
-    
+
     updateGrid();
     updateTrigger++;
     showAdvice("Todos los obstáculos han sido eliminados");
@@ -194,7 +201,9 @@
   // Funciones para manejar clics en botones deshabilitados
   function handleAddObstacleClick() {
     if (obstacles.length >= MAX_OBSTACLES) {
-      showDisabledActionAlert("El planeta está lleno. Ya no caben más obstáculos");
+      showDisabledActionAlert(
+        "El planeta está lleno. Ya no caben más obstáculos"
+      );
     } else {
       addObstacle();
     }
@@ -217,19 +226,23 @@
   }
 </script>
 
-<h1 class="text-3xl font-bold text-center text-white mb-8">Mars Rover Mission</h1>
+<h1 class="text-3xl font-bold text-center text-white mb-8">
+  Mars Rover Mission
+</h1>
 
 <div class="flex flex-col md:flex-row w-full items-start justify-center gap-4">
-  <div class="flex flex-col sticky-column md:max-w-xs lg:max-w-sm xl:max-w-md gap-4">
+  <div
+    class="flex flex-col sticky-column md:max-w-xs lg:max-w-sm xl:max-w-md gap-4"
+  >
     <RoverInfo {rover} {updateTrigger} />
-    
-    <CommandInput 
-      bind:commands 
-      onExecuteCommands={handleExecuteCommandsClick} 
+
+    <CommandInput
+      bind:commands
+      onExecuteCommands={handleExecuteCommandsClick}
     />
 
-    <ObstacleControls 
-      onAddObstacle={handleAddObstacleClick} 
+    <ObstacleControls
+      onAddObstacle={handleAddObstacleClick}
       onClearObstacles={handleClearObstaclesClick}
       obstaclesCount={obstacles.length}
       maxObstacles={MAX_OBSTACLES}
