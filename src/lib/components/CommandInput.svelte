@@ -52,7 +52,7 @@
     />
     <button
       on:click={onExecuteCommands}
-      class="btn {commands ? 'btn-green hover:bg-green-600' : 'bg-gray-400 text-white'}"
+      class="btn {commands ? 'btn-green hover:bg-green-600' : 'bg-gray-300 text-gray-400'}"
       aria-label="Ejecutar comandos"
     >
       <svg

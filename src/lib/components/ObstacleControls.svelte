@@ -16,9 +16,6 @@
 
 <div class="panel">
   <h2 class="panel-title">Obstaculos</h2>
-  <p class="mb-2 text-sm">
-    Total: {obstaclesCount}/{maxObstacles}
-  </p>
   <div class="flex flex-row space-x-2">
     <button 
       on:click={onAddObstacle} 
